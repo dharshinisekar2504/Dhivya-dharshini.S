@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        {{ comic.title }}
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="/static/style.css"
+    >
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <div class="hero">
+
+        <h1>
+            {{ comic.title }}
+        </h1>
+
+        <p>
+            {{ comic.outline }}
+        </p>
+
+    </div>
+
+
+    <div class="comic-grid">
+
+        {% for panel in comic.panels %}
+
+        <div class="panel">
+
+            <img
+                src="{{ panel.image_url }}"
+                alt="Comic panel {{ panel.panel_number }}"
+            >
+
+
+            <h3>
+                Panel {{ panel.panel_number }}
+            </h3>
+
+
+            <p>
+                <strong>
+                    Scene:
+                </strong>
+
+                {{ panel.scene }}
+            </p>
+
+
+            <p>
+
+                <strong>
+                    Narration:
+                </strong>
+
+                {{ panel.narration }}
+
+            </p>
+
+
+            <p class="dialogue">
+
+                <strong>
+                    Dialogue:
+                </strong>
+
+                {{ panel.dialogue }}
+
+            </p>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+
+    <div class="actions">
+
+        <button
+            id="exportBtn"
+        >
+            Export Comic as PDF
+        </button>
+
+
+        <a
+            href="/create"
+            class="secondary"
+        >
+            Create Another Comic
+        </a>
+
+    </div>
+
+
+    <p id="status"></p>
+
+</div>
+
+
+<script id="comic-data" type="application/json">
+{{ comic.model_dump(mode="json") | tojson }}
+</script>
+
+<script>
+
+const comicData = JSON.parse(
+    document.getElementById("comic-data").textContent
+);
+
+
+document
+    .getElementById("exportBtn")
+    .addEventListener(
+        "click",
+        async () => {
+
+            const button =
+                document.getElementById(
+                    "exportBtn"
+                );
+
+            const status =
+                document.getElementById(
+                    "status"
+                );
+
+
+            button.disabled = true;
+
+            status.textContent =
+                "Creating PDF...";
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/export",
+                        {
+
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    comicData
+                                )
+                        }
+                    );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "PDF export failed."
+                    );
+
+                }
+
+
+                const result =
+                    await response.json();
+
+
+                const link =
+                    document.createElement(
+                        "a"
+                    );
+
+
+                link.href =
+                    result.download_url;
+
+
+                link.download =
+                    result.filename;
+
+
+                document.body.appendChild(
+                    link
+                );
+
+
+                link.click();
+
+
+                link.remove();
+
+
+                window.location.href =
+                    "/export-success";
+
+
+            }
+
+            catch (error) {
+
+                status.textContent =
+                    error.message;
+
+                button.disabled =
+                    false;
+
+            }
+
+        }
+    );
+
+</script>
+
+</body>
+
+</html>
