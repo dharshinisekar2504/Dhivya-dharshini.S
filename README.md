@@ -1,4 +1,4 @@
-https://drive.google.com/file/d/1Z5emRKCm3AeLnVTw0NtWfUmpO6t6M7wO/view?usp=sharing
+ demo link - https://drive.google.com/file/d/1Z5emRKCm3AeLnVTw0NtWfUmpO6t6M7wO/view?usp=sharing
 # ComicCraft - AI Comic Story Creator
 
 ComicCraft is an AI-powered web application that creates comic stories from user prompts.
